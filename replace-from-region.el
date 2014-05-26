@@ -5,7 +5,7 @@
 ;; Author: rubikitch <rubikitch@ruby-lang.org>
 ;; Maintainer: rubikitch <rubikitch@ruby-lang.org>
 ;; Copyright (C) 2013, rubikitch, all rights reserved.
-;; Time-stamp: <2013-03-17 08:02:16 rubikitch>
+;; Time-stamp: <2014-05-27 07:22:12 rubikitch>
 ;; Created: 2013-01-28 14:49:07
 ;; Version: 0.1
 ;; URL: http://www.emacswiki.org/emacs/download/replace-from-region.el
@@ -32,8 +32,8 @@
 ;; the Free Software Foundation, Inc., 51 Franklin Street, Fifth
 ;; Floor, Boston, MA 02110-1301, USA.
 
-;;; Commentary: 
-;; 
+;;; Commentary:
+;;
 ;; Replace commands whose query is from region
 ;; `query-replace' -> `query-replace-from-region'
 ;; `query-replace-regexp' -> `query-replace-regexp-from-region'
@@ -47,10 +47,12 @@
    (let ((from0 (if (region-active-p)
                     (buffer-substring (region-beginning) (region-end))
                   (query-replace-read-from "Query replace" nil))))
-     (list from0
-           (query-replace-read-to from0 "Query replace" nil))))
+     (if (consp from0)
+         (list (car from0) (cdr from0))
+       (list from0
+             (query-replace-read-to from0 "Query replace" nil)))))
+  (when (region-active-p) (goto-char (region-beginning)))
   (deactivate-mark)
-  (goto-char (region-beginning))
   (perform-replace from to t nil nil))
 
 ;;;###autoload
@@ -60,10 +62,12 @@
    (let ((from0 (if (region-active-p)
                     (query-replace-regexp-read-from "Query replace regexp")
                   (query-replace-read-from "Query replace regexp" nil))))
-     (list from0
-           (query-replace-read-to from0 "Query replace regexp" nil))))
+     (if (consp from0)
+         (list (car from0) (cdr from0))
+       (list from0
+             (query-replace-read-to from0 "Query replace regexp" nil)))))
+  (when (region-active-p) (goto-char (region-beginning)))
   (deactivate-mark)
-  (goto-char (region-beginning))
   (perform-replace from to t t nil))
 
 ;;; borrowed from replace.el
