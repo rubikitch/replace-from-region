@@ -5,9 +5,9 @@
 ;; Author: rubikitch <rubikitch@ruby-lang.org>
 ;; Maintainer: rubikitch <rubikitch@ruby-lang.org>
 ;; Copyright (C) 2013, rubikitch, all rights reserved.
-;; Time-stamp: <2015-04-07 09:29:23 rubikitch>
+;; Time-stamp: <2016-12-03 17:10:02 rubikitch>
 ;; Created: 2013-01-28 14:49:07
-;; Version: 0.1
+;; Version: 0.2
 ;; URL: http://www.emacswiki.org/emacs/download/replace-from-region.el
 ;; Keywords: replace, search, region
 ;; Compatibility: GNU Emacs 24.2.2, 25.1
@@ -41,34 +41,48 @@
 ;;; Code:
 
 ;;;###autoload
-(defun query-replace-from-region (from to)
+(defun query-replace-from-region (from to &optional delimited start end backward)
   "Perform `query-replace', but getting FROM string from region."
   (interactive
    (let ((from0 (if (region-active-p)
                     (buffer-substring (region-beginning) (region-end))
                   (query-replace-read-from "Query replace" nil))))
-     (if (consp from0)
-         (list (car from0) (cdr from0))
-       (list from0
-             (query-replace-read-to-with-default from0 "Query replace" nil)))))
+     (append (if (consp from0)
+                 (list
+                  (car from0)
+                  (cdr from0))
+               (list
+                from0
+                (query-replace-read-to-with-default from0 "Query replace" nil)))
+             (list
+              (and current-prefix-arg (not (eq current-prefix-arg '-)))
+              nil nil
+              (and current-prefix-arg (eq current-prefix-arg '-))))))
   (when (region-active-p) (goto-char (region-beginning)))
   (deactivate-mark)
-  (perform-replace from to t nil nil))
+  (perform-replace from to t nil delimited nil nil start end backward))
 
 ;;;###autoload
-(defun query-replace-regexp-from-region (from to)
+(defun query-replace-regexp-from-region (from to &optional delimited start end backward)
   "Perform `query-replace-regexp', but getting FROM string from region."
   (interactive
    (let ((from0 (if (region-active-p)
                     (query-replace-regexp-read-from "Query replace regexp")
                   (query-replace-read-from "Query replace regexp" nil))))
-     (if (consp from0)
-         (list (car from0) (cdr from0))
-       (list from0
-             (query-replace-read-to-with-default from0 "Query replace regexp" nil)))))
+     (append (if (consp from0)
+                 (list
+                  (car from0)
+                  (cdr from0))
+               (list
+                from0
+                (query-replace-read-to-with-default from0 "Query replace regexp" nil)))
+             (list
+              (and current-prefix-arg (not (eq current-prefix-arg '-)))
+              nil nil
+              (and current-prefix-arg (eq current-prefix-arg '-))))))
   (when (region-active-p) (goto-char (region-beginning)))
   (deactivate-mark)
-  (perform-replace from to t t nil))
+  (perform-replace from to t t delimited nil nil start end backward nil))
 
 ;;; borrowed from replace.el
 (defun query-replace-regexp-read-from (prompt)
