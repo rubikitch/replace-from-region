@@ -119,7 +119,7 @@
 		 from nil nil           ;HERE
 		 query-replace-to-history-variable from t)))
        (add-to-history query-replace-to-history-variable to nil t)
-       (push (cons from to) query-replace-defaults)
+       (add-to-history 'query-replace-defaults (cons from to) nil t)
        to))
    regexp-flag))
 
